@@ -1,0 +1,46 @@
+<button id="btn">Hello</button>
+<input id="image" name="image" type="file" />
+
+<script>
+    const sock = new WebSocket("ws://127.0.0.1:5001");
+
+    sock.addEventListener("open", e => {
+        console.log("接続が開かれたときに呼び出されるイベント");
+    });
+
+    sock.addEventListener("message", e => {
+        console.log("サーバーからメッセージを受信したときに呼び出されるイベント");
+    });
+
+    sock.addEventListener("close", e => {
+        console.log("接続が閉じられたときに呼び出されるイベント");
+    });
+
+    sock.addEventListener("error", e => {
+        console.log("エラーが発生したときに呼び出されるイベント");
+    });
+
+    btn.addEventListener("click", e => {
+        var message = {
+            "id": "murase"
+        };
+        message = JSON.stringify(message);
+        sock.send(message);
+    });
+
+    document.getElementById('image')
+        .addEventListener('change', function (evt) {
+            var file = evt.target.files[0];
+            var reader = new FileReader();
+            reader.onload = (event) => {
+                var message = {
+                    "id": "murase",
+                    "type": "binary",
+                    "data": event.target.result
+                };
+                message = JSON.stringify(message);
+                sock.send(message);
+            };
+            reader.readAsBinaryString ( file );
+        }, false);
+</script>
