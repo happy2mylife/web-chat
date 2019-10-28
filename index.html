@@ -1,46 +1,33 @@
-<button id="btn">Hello</button>
-<input id="image" name="image" type="file" />
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Webチャット</title>
+    <script type="text/javascript" src="./enum.js"></script>
+    <script type="text/javascript" src="./chat.js"></script>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+  </head>
 
-<script>
-    const sock = new WebSocket("ws://127.0.0.1:5001");
+  <body>
+    <h1>いわゆるあのチャットアプリ風</h1>
+    <div class="main-container" id="main">
+      ニックネーム:
+      <input type="text" id="nickName" /><br />
+      チャットルーム:
+      <input type="text" id="roomText" />
+      <input type="button" id="joinRoom" value="入室" /><br />
+      <select class="room-selector" id="roomSelector" name="chat-room" size="10" onChange="onRoomSelected()"> </select>
+      <br />
+      <input type="text" id="chatText" />
+      <button id="send">送信</button>
+      <input id="image" name="image" type="file" />
+    </div>
 
-    sock.addEventListener("open", e => {
-        console.log("接続が開かれたときに呼び出されるイベント");
-    });
-
-    sock.addEventListener("message", e => {
-        console.log("サーバーからメッセージを受信したときに呼び出されるイベント");
-    });
-
-    sock.addEventListener("close", e => {
-        console.log("接続が閉じられたときに呼び出されるイベント");
-    });
-
-    sock.addEventListener("error", e => {
-        console.log("エラーが発生したときに呼び出されるイベント");
-    });
-
-    btn.addEventListener("click", e => {
-        var message = {
-            "id": "murase"
-        };
-        message = JSON.stringify(message);
-        sock.send(message);
-    });
-
-    document.getElementById('image')
-        .addEventListener('change', function (evt) {
-            var file = evt.target.files[0];
-            var reader = new FileReader();
-            reader.onload = (event) => {
-                var message = {
-                    "id": "murase",
-                    "type": "binary",
-                    "data": event.target.result
-                };
-                message = JSON.stringify(message);
-                sock.send(message);
-            };
-            reader.readAsBinaryString ( file );
-        }, false);
-</script>
+    <div style="display: inline-block; width: 35%">
+      <div class="title-container">
+          <span id="roomName"></span>
+      </div>
+      <div class="chat-container" id="chatBox"></div>
+    </div>
+  </body>
+</html>
