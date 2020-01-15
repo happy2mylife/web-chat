@@ -1,41 +1,17 @@
 
 
 window.onload = () => {
-    send.addEventListener("click", e => {
-        var message = {
-            "name": nickName.value,
-            "type": MessageType.SendMessage,
-            "room": roomText.value,
-            "value": chatText.value  
-        };
-        message = JSON.stringify(message);
-        sock.send(message);
-    });
+    send.addEventListener("click", sendMessage);
 
-    joinRoom.addEventListener("click", e => {;
-        if (!nickName.value) {
-            alert('ニックネームを設定してください');
-            return;
-        } else if (!roomText.value) {
-            alert('入室するルームをを設定してください');
-            return;
-        }
-        var message = {
-            "name": nickName.value,
-            "type": MessageType.JoinRoom,
-            "room": roomText.value
-        }
-        message = JSON.stringify(message);
-        sock.send(message);
-    });
+    join.addEventListener("click", joinRoom);
 
     document.getElementById('image')
         .addEventListener('change', function (evt) {
-            var file = evt.target.files[0];
-            var reader = new FileReader();
+            const file = evt.target.files[0];
+            const reader = new FileReader();
             reader.onload = (event) => {
                 bufferToBase64(reader.result, (b64) => {
-                    var message = {
+                    const json = {
                         "id": "murase",
                         "type": "binary",
                         // バイナリ文字列をbase64に変換 btoa だと途中で欠けちゃう
@@ -44,7 +20,7 @@ window.onload = () => {
                         "data": b64
 
                     };
-                    message = JSON.stringify(message);
+                    message = JSON.stringify(json);
                     sock.send(message);
 
                     const img = new Image();
@@ -72,8 +48,10 @@ sock.addEventListener("message", e => {
     const json = JSON.parse(e.data);
     if (json.type == MessageType.JoinRoom) {
         onRoomJoined(json);
-    } else {
+    } else if (json.type == MessageType.SendMessage){
         addReceivedMessage(json);
+    } else {
+        console.log("unknown message type.");
     }
 });
 
@@ -86,10 +64,10 @@ sock.addEventListener("error", e => {
 });
 
 function bufferToBase64(buf, callback) {
-    var blob = new Blob([buf], { type: "image/png" });
-    var reader = new FileReader();
+    const blob = new Blob([buf], { type: "image/png" });
+    const reader = new FileReader();
     reader.onload = function () {
-        var b64 = reader.result;
+        const b64 = reader.result;
         callback(b64);
     }
     reader.readAsDataURL(blob);
@@ -112,30 +90,40 @@ function isOwnMessage(json) {
  * 相手のメッセージを表示
  */
 function addSenderMessage(json) {
-    const chatFrameElement = document.createElement("div");
-    chatFrameElement.classList.add("chat-left-frame");
-
-    const textElement = document.createElement("div");
-    textElement.textContent = json.value;
-    textElement.classList.add("chat-left-message");
-
-    chatFrameElement.appendChild(textElement);
-    chatBox.appendChild(chatFrameElement);
+    addMessageElement(json, MessageOwner.Other);
 }
 
 /**
  * 自身のメッセージを表示
  */
 function addOwnMessage(json) {
+    addMessageElement(json, MessageOwner.Own);
+}
+
+function addMessageElement(json, messageOwner) {
+    const senderNameElement = document.createElement("div");
+    if (messageOwner == MessageOwner.Own) {
+        elementName = "right";
+    } else {
+        senderNameElement.textContent = json.name;
+        senderNameElement.classList.add("sender-name");
+        elementName = "left";
+    }
+
+
     const chatFrameElement = document.createElement("div");
-    chatFrameElement.classList.add("chat-right-frame");
+    chatFrameElement.classList.add("chat-" + elementName +"-frame");
 
     const textElement = document.createElement("div");
     textElement.textContent = json.value;
-    textElement.classList.add("chat-right-message");
+    textElement.classList.add("chat-" + elementName +"-message");
 
     chatFrameElement.appendChild(textElement);
+    chatBox.appendChild(senderNameElement);
     chatBox.appendChild(chatFrameElement);
+
+    // 自動で下にスクロールさせる
+    chatBox.scrollTo(0, chatBox.scrollHeight);
 }
 
 function onRoomJoined(json) {
@@ -152,10 +140,8 @@ function onRoomJoined(json) {
         optionElement.text = json.room;
         roomSelector.appendChild(optionElement);
     }
-
     
     selectRoom(json.room);
-
 }
 
 /**
@@ -190,4 +176,41 @@ function selectRoom(roomName) {
  */
 function onRoomSelected() {
     roomText.value = roomSelector.options[roomSelector.selectedIndex].text;
+}
+
+/**
+ * テキストメッセージ送信処理
+ */
+function sendMessage() {
+    const json = {
+        "name": nickName.value,
+        "type": MessageType.SendMessage,
+        "room": roomText.value,
+        "value": chatText.value  
+    };
+    message = JSON.stringify(json);
+    sock.send(message);
+}
+
+/**
+ * ルーム入室処理
+ */
+function joinRoom() {
+
+    // ニックネームや入室ルームが指定されていなければアラート表示
+    if (!nickName.value) {
+        alert('ニックネームを設定してください');
+        return;
+    } else if (!roomText.value) {
+        alert('入室するルームをを設定してください');
+        return;
+    }
+
+    const json = {
+        "name": nickName.value,
+        "type": MessageType.JoinRoom,
+        "room": roomText.value
+    }
+    message = JSON.stringify(json);
+    sock.send(message);
 }

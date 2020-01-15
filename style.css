@@ -92,3 +92,8 @@ body {
     height: 500px;
     overflow-y:scroll;
 }
+
+.sender-name {
+    margin-left: 20px;
+    color: #ffffff
+}

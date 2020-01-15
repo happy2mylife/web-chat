@@ -21,12 +21,7 @@ s.on("connection", ws => {
             joinRoom(ws.clientId, json);
             sendMessageToClients(message);
         } else if (json.type == MessageType.SendMessage) {
-            sendMessageToClientsInRoom(ws.clientId, json);
-        }
-
-
-        if (message === "hello") {
-            ws.send("hello from server");
+            sendMessageToClientsInRoom(ws.clientId, message);
         }
     });
 
@@ -34,8 +29,11 @@ s.on("connection", ws => {
         // 当該クライアントをルームから退去
         leaveRoom(ws.clientId);
         deleteRoom();
+        removeFromConnections(ws.clientId);
         console.log(`${ws.clientId} connection is closed.`);
     });
+
+    notifyNewComer();
 });
 
 /**
@@ -110,7 +108,7 @@ function deleteRoom() {
  * 送信元が属するルームにいるクライアントにメッセージを送る
  * @param {*} json 
  */
-function sendMessageToClientsInRoom(clientId, json) {
+function sendMessageToClientsInRoom(clientId, message) {
     const room = getRoomByClientId(clientId);
 
     // ルームに入っていなければ送らない
@@ -125,7 +123,6 @@ function sendMessageToClientsInRoom(clientId, json) {
 
     clientConnections.forEach((connection) => {
         if (rooms[room].findIndex(id => id == connection.clientId) != -1) {
-            message = JSON.stringify(json);
             connection.send(message);
         }
     });
@@ -135,4 +132,29 @@ function sendMessageToClients(message) {
     clientConnections.forEach(connection => {
         connection.send(message);
     })
+}
+
+
+/**
+ * コネクションプールから当該クライアントコネクションを削除
+ * @param {*} clientId 
+ */
+function removeFromConnections(clientId) {
+    const index = clientConnections.findIndex(c => c.clientId == clientId);
+    if (index == -1) {
+        return;
+    }
+    clientConnections.splice(index, 1);    
+}
+
+function notifyNewComer() {
+    // const json = {
+    //     rooms: {
+    //         name: "",
+    //         clients: []
+    //     }
+    // }
+    // clientConnections.forEach(connection => {
+    //     connection.send(message);
+    // })
 }
