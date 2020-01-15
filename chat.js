@@ -50,6 +50,8 @@ sock.addEventListener("message", e => {
         onRoomJoined(json);
     } else if (json.type == MessageType.SendMessage){
         addReceivedMessage(json);
+    } else if (json.type == MessageType.Connected){
+        onConnected(json);
     } else {
         console.log("unknown message type.");
     }
@@ -213,4 +215,17 @@ function joinRoom() {
     }
     message = JSON.stringify(json);
     sock.send(message);
+}
+
+/**
+ * コネクションが確立した時
+ */
+function onConnected(json) {
+    json.rooms.forEach(room => {
+        // リストボックスにも列挙
+        const optionElement = document.createElement("option");
+        optionElement.value = roomSelector.length + 1;
+        optionElement.text = room.roomName;
+        roomSelector.appendChild(optionElement);
+    });
 }

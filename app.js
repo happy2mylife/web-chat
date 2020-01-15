@@ -4,7 +4,7 @@ const uuid = require('node-uuid');
 const server = require("ws").Server;
 const s = new server({ port: 5001 });
 // https://www.pari.go.jp/unit/ydaku/fujita/nodejsWebSocket/
-const rooms = {};
+const rooms = [];
 const clientConnections = [];
 
 s.on("connection", ws => {
@@ -26,14 +26,23 @@ s.on("connection", ws => {
     });
 
     ws.on("close", () => {
-        // 当該クライアントをルームから退去
+        // 当該クライアントをルームから削除
         leaveRoom(ws.clientId);
-        deleteRoom();
         removeFromConnections(ws.clientId);
         console.log(`${ws.clientId} connection is closed.`);
     });
 
-    notifyNewComer();
+    // ルーム情報をクライアントに通知
+    const json = {
+        type: MessageType.Connected,
+        rooms: rooms
+    }
+    const message = JSON.stringify(json);
+    setTimeout(() => {
+        // クライアントが受信できる状態に確実になってから送信
+        // TODO 3秒は適当
+        ws.send(message);
+    }, 3000)
 });
 
 /**
@@ -45,18 +54,23 @@ s.on("connection", ws => {
  */
 function joinRoom(clientId, json) {
 
-    // ルームにまだ誰も入っていなければルームを作る
-    if (json.room && !rooms[json.room]) {
-        rooms[json.room] = [clientId];
+    const room = rooms.find(room => room.roomName == json.room);
+    if (json.room && !room) {
+        // ルームにまだ誰も入っていなければルームを作る
+        rooms.push({
+            roomName: json.room,
+            clients: [{
+                name: json.name,
+                id: clientId
+            }]
+        })
+    } else {
+        // ルームが既にあればクライアントを追加
+        room.clients.push({
+            name: json.name,
+            id: clientId
+        })
     }
-
-    const room = rooms[json.room];
-    const client = room.find(c => c == clientId);
-    if (!client) {
-        room.push(clientId);
-    }
-
-    return room;
 }
 
 /**
@@ -69,12 +83,18 @@ function leaveRoom(clientId) {
         return;
     }
 
-    const index = rooms[room].indexOf(clientId);
+    const index = room.clients.findIndex(c => c.id == clientId);
     if (index == -1) {
         return;
     }
     // 該当ルームからクライアントを退出
-    rooms[room].splice(index, 1);
+    room.clients.splice(index, 1);
+
+    // クライアントがいなくなったルームは削除
+    if (room.clients.length == 0) {
+        const i = rooms.findIndex(r => r.roomName == room.roomName);
+        rooms.splice(i, 1);
+    }
 }
 
 /**
@@ -82,26 +102,11 @@ function leaveRoom(clientId) {
  * @param {*} clientId 
  */
 function getRoomByClientId(clientId) {
-    var room;
-    for (var key in rooms) {
-        if (rooms[key].find(c => c == clientId)) {
-            room = key;
-            break;
-        } 
-    }
+    const room = rooms.find(room => {
+        return room.clients.findIndex(c => c.id == clientId) != -1
+    })
 
     return room;
-}
-
-/**
- * クライアントが1人もいないルームは削除
- */
-function deleteRoom() {
-    // rooms.forEach((room, index) => {
-    //     if (room.length == 0) {
-    //         rooms.splice(index, 1);
-    //     }
-    // });
 }
 
 /**
@@ -117,12 +122,8 @@ function sendMessageToClientsInRoom(clientId, message) {
         return;
     }
 
-    const clients = clientConnections.filter(connection => {
-        return connection.clientId != clientId;
-    });
-
     clientConnections.forEach((connection) => {
-        if (rooms[room].findIndex(id => id == connection.clientId) != -1) {
+        if (room.clients.findIndex(client => client.id == connection.clientId) != -1) {
             connection.send(message);
         }
     });

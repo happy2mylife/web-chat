@@ -3,6 +3,7 @@ const MessageType = {
     LeaveRoom: 2,
     SendMessage: 3,
     SendImage: 4,
+    Connected: 5,
 };
 
 const MessageOwner = {
