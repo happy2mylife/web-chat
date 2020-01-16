@@ -54,11 +54,11 @@ s.on("connection", ws => {
  */
 function joinRoom(clientId, json) {
 
-    const room = rooms.find(room => room.roomName == json.room);
-    if (json.room && !room) {
+    const room = rooms.find(room => room.roomName == json.roomName);
+    if (json.roomName && !room) {
         // ルームにまだ誰も入っていなければルームを作る
         rooms.push({
-            roomName: json.room,
+            roomName: json.roomName,
             clients: [{
                 name: json.name,
                 id: clientId

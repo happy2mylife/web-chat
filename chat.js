@@ -102,6 +102,11 @@ function addOwnMessage(json) {
     addMessageElement(json, MessageOwner.Own);
 }
 
+function getCurrentTime() {
+    const now = new Date();
+    return `${now.getHours()}:${now.getMinutes()}`;
+}
+
 function addMessageElement(json, messageOwner) {
     const senderNameElement = document.createElement("div");
     if (messageOwner == MessageOwner.Own) {
@@ -112,15 +117,25 @@ function addMessageElement(json, messageOwner) {
         elementName = "left";
     }
 
-
     const chatFrameElement = document.createElement("div");
     chatFrameElement.classList.add("chat-" + elementName +"-frame");
 
+    const timeStampElement = document.createElement("div");
+    timeStampElement.textContent = getCurrentTime();
+    timeStampElement.classList.add("timestamp-" + elementName);
+
     const textElement = document.createElement("div");
-    textElement.textContent = json.value;
+    textElement.textContent = json.chatText;
     textElement.classList.add("chat-" + elementName +"-message");
 
-    chatFrameElement.appendChild(textElement);
+    if (messageOwner == MessageOwner.Own) {
+        // TODO 自身のメッセージタイムスタンプまだ
+        // chatFrameElement.appendChild(timeStampElement);    
+        chatFrameElement.appendChild(textElement);
+    } else {
+        chatFrameElement.appendChild(textElement);
+        chatFrameElement.appendChild(timeStampElement);    
+    }
     chatBox.appendChild(senderNameElement);
     chatBox.appendChild(chatFrameElement);
 
@@ -131,19 +146,19 @@ function addMessageElement(json, messageOwner) {
 function onRoomJoined(json) {
     // 自身がルーム入室した場合は、ルームタイトルにセット
     if (isOwnMessage(json)) {
-        roomName.textContent = json.room;
+        roomName.textContent = json.roomName;
     }
 
     // 新規ルームの場合はリストボックスに追加
-    if (!isRoomAlreadyExist(json.room)) {
+    if (!isRoomAlreadyExist(json.roomName)) {
         // リストボックスにも列挙
         const optionElement = document.createElement("option");
         optionElement.value = roomSelector.length + 1;
-        optionElement.text = json.room;
+        optionElement.text = json.roomName;
         roomSelector.appendChild(optionElement);
     }
     
-    selectRoom(json.room);
+    selectRoom(json.roomName);
 }
 
 /**
@@ -184,11 +199,16 @@ function onRoomSelected() {
  * テキストメッセージ送信処理
  */
 function sendMessage() {
+    if (chatText.value.length == 0) {
+        alert("メッセージを入力してください。");
+    } else if (roomName.textContent.length == 0) {
+        alert("ルームに入室してください。");
+    }
     const json = {
         "name": nickName.value,
         "type": MessageType.SendMessage,
-        "room": roomText.value,
-        "value": chatText.value  
+        "roomName": roomText.value,
+        "chatText": chatText.value  
     };
     message = JSON.stringify(json);
     sock.send(message);
@@ -211,7 +231,7 @@ function joinRoom() {
     const json = {
         "name": nickName.value,
         "type": MessageType.JoinRoom,
-        "room": roomText.value
+        "roomName": roomText.value
     }
     message = JSON.stringify(json);
     sock.send(message);

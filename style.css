@@ -17,6 +17,9 @@ body {
 }
 
 .chat-left-message {
+    display: inline-block;
+    max-width: 70%;
+    min-width: 20%;
     margin: 0;
     position: relative;
     padding: 10px;
@@ -43,10 +46,25 @@ body {
     width: 100%;
     position: relative;
     display: block;
+    margin-top: 15px;
     margin-bottom: 5px;
     max-width: 80%;
-    margin-left: 50px;
+    margin-left: 15%;
     clear: both;
+}
+
+.timestamp-left {
+    font-size: x-small;
+    color: #ffffff;
+    display: inline-block;
+    margin-left: 10px;
+}
+
+.timestamp-right {
+    font-size: x-small;
+    color: #ffffff;
+    display: inline-block;
+    margin-right: 10px;
 }
 
 .chat-right-message {
@@ -54,7 +72,7 @@ body {
     border-radius: 20px;
     background-color: #8de055;
     margin: 0;
-    margin-left: 80px;
+    margin-left: 15%;
     overflow-wrap: break-word;
 }
 
