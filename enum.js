@@ -4,6 +4,7 @@ const MessageType = {
     SendMessage: 3,
     SendImage: 4,
     Connected: 5,
+    ListMember: 6
 };
 
 const MessageOwner = {

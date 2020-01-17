@@ -22,7 +22,7 @@ s.on("connection", ws => {
             sendMessageToClients(message);
         } else if (json.type == MessageType.SendMessage) {
             sendMessageToClientsInRoom(ws.clientId, message);
-        }
+        } else if (json.type == MessageType.ListMember)
     });
 
     ws.on("close", () => {
@@ -64,6 +64,9 @@ function joinRoom(clientId, json) {
                 id: clientId
             }]
         })
+    } else if (room.clients.findIndex(c => c.id == clientId) != -1) { 
+        // 既に同じルームに入っていたら何もしない
+        return;
     } else {
         // ルームが既にあればクライアントを追加
         room.clients.push({
