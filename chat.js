@@ -5,6 +5,8 @@ window.onload = () => {
 
     join.addEventListener("click", joinRoom);
 
+    list.addEventListener("click", listMember);
+
     document.getElementById('image')
         .addEventListener('change', function (evt) {
             const file = evt.target.files[0];
@@ -52,6 +54,8 @@ sock.addEventListener("message", e => {
         addReceivedMessage(json);
     } else if (json.type == MessageType.Connected){
         onConnected(json);
+    } else if (json.type == MessageType.ListMember){
+        onListMember(json);
     } else {
         console.log("unknown message type.");
     }
@@ -248,4 +252,27 @@ function onConnected(json) {
         optionElement.text = room.roomName;
         roomSelector.appendChild(optionElement);
     });
+}
+
+function listMember() {
+
+    // TODO 
+    // ルームに入っていない場合はアラート表示など
+
+    const json = {
+        "name": nickName.value,
+        "type": MessageType.ListMember,
+        "roomName": roomText.value
+    }
+    message = JSON.stringify(json);
+    sock.send(message);   
+}
+
+function onListMember(json) {
+    if (json.members) {
+        json.members.forEach(member => {
+            // とりあえずログ表示
+            console.log(`${member.name}`);
+        });
+    }
 }

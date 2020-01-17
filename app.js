@@ -22,7 +22,10 @@ s.on("connection", ws => {
             sendMessageToClients(message);
         } else if (json.type == MessageType.SendMessage) {
             sendMessageToClientsInRoom(ws.clientId, message);
-        } else if (json.type == MessageType.ListMember)
+        } else if (json.type == MessageType.ListMember) {
+            json.members = getMembers(json.roomName);
+            sendMessageToClients(JSON.stringify(json), ws.clientId);
+        }
     });
 
     ws.on("close", () => {
@@ -132,7 +135,20 @@ function sendMessageToClientsInRoom(clientId, message) {
     });
 }
 
-function sendMessageToClients(message) {
+/**
+ * クライアントにレスポンスを返す（クライアントが指定されていなければ全てのクライアント）
+ * @param {*} message 
+ * @param {*} clientId 
+ */
+function sendMessageToClients(message, clientId) {
+    if (clientId) {
+        const connection = clientConnections.find(c => c.clientId == clientId);
+        if (connection) {
+            connection.send(message);
+        }
+
+        return;
+    }
     clientConnections.forEach(connection => {
         connection.send(message);
     })
@@ -149,6 +165,13 @@ function removeFromConnections(clientId) {
         return;
     }
     clientConnections.splice(index, 1);    
+}
+
+function getMembers(roomName) {
+    const room = rooms.find(room => room.roomName == roomName);
+    if (room) {
+        return room.clients;
+    }
 }
 
 function notifyNewComer() {
