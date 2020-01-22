@@ -1,11 +1,10 @@
 
 
 window.onload = () => {
+    // TODO 直接HTMLにonclickで
     send.addEventListener("click", sendMessage);
-
+    // TODO 直接HTMLにonclickで
     join.addEventListener("click", joinRoom);
-
-    list.addEventListener("click", listMember);
 
     document.getElementById('image')
         .addEventListener('change', function (evt) {
@@ -254,25 +253,53 @@ function onConnected(json) {
     });
 }
 
-function listMember() {
+/**
+ * 選択されているルームのメンバーを表示
+ */
+function showMember() {
 
-    // TODO 
-    // ルームに入っていない場合はアラート表示など
+    if (roomSelector.selectedIndex == -1) {
+        // TODO ルームが選択されていない場合
+        return;
+    }
+
+    const selectedRoom = roomSelector.options[roomSelector.selectedIndex].text;
 
     const json = {
         "name": nickName.value,
         "type": MessageType.ListMember,
-        "roomName": roomText.value
+        "roomName": selectedRoom
     }
     message = JSON.stringify(json);
-    sock.send(message);   
+    sock.send(message);
 }
 
 function onListMember(json) {
-    if (json.members) {
-        json.members.forEach(member => {
-            // とりあえずログ表示
-            console.log(`${member.name}`);
-        });
+    if (!json.members) {
+        return;
+    }
+    
+    removeAllChild(memberTable);
+
+    json.members.forEach(member => {
+        // とりあえずログ表示
+        console.log(`${member.name}`);
+
+        // alert でも良い。
+
+        // テーブルバージョン
+        const td = document.createElement("td");
+        const text = document.createTextNode(member.name);
+        td.appendChild(text);
+
+        const tr = document.createElement("tr");
+        tr.appendChild(td);
+        memberTable.appendChild(tr);
+    });
+}
+
+function removeAllChild(node) {
+    for (let i=node.childNodes.length-1; i>=0; i--) {
+        node.removeChild(node.childNodes[i]);
     }
 }
