@@ -3,24 +3,27 @@
   <head>
     <meta charset="UTF-8" />
     <title>Webチャット</title>
-    <script type="text/javascript" src="./enum.js"></script>
-    <script type="text/javascript" src="./chat.js"></script>
-    <link rel="stylesheet" type="text/css" href="style.css" />
+    <script type="text/javascript" src="./js/enum.js"></script>
+    <script type="text/javascript" src="./js/wsock.js"></script>
+    <script type="text/javascript" src="./js/util.js"></script>
+    <script type="text/javascript" src="./js/chat.js"></script>
+    <link rel="stylesheet" type="text/css" href="./css/style.css" />
   </head>
 
   <body>
     <h1>いわゆるあのチャットアプリ風</h1>
-    <div class="main-container" id="main">
-      ニックネーム:
+    <div class="main-container">
+      name:
       <input type="text" id="nickName" /><br />
-      チャットルーム:
+      room:
       <input type="text" id="roomText" />
-      <input type="button" id="join" value="入室" /><br />
+      <input type="button" value="入室" onclick="joinRoom()" /><br />
       <select class="room-selector" id="roomSelector" name="chat-room" size="10" onclick="onRoomSelected()"> </select>
       <br />
       <input type="text" id="chatText" />
-      <button id="send">送信</button>
-      <input id="image" name="image" type="file" />
+      <button onclick="sendMessage()">メッセージを送信</button>
+      <br/>
+      <input id="selectImageBtn" type="file" />
       <br/>
       <button id="list" onclick="showMember()">メンバーを表示</button>
       <table id="memberTable">

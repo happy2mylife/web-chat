@@ -18,6 +18,9 @@ s.on("connection", ws => {
 
         const json = JSON.parse(message);
         if (json.type == MessageType.JoinRoom) {
+            // 当該クライアントをルームから削除
+            leaveRoom(ws.clientId);
+
             joinRoom(ws.clientId, json);
             sendMessageToClients(message);
         } else if (json.type == MessageType.SendMessage) {
@@ -25,6 +28,8 @@ s.on("connection", ws => {
         } else if (json.type == MessageType.ListMember) {
             json.members = getMembers(json.roomName);
             sendMessageToClients(JSON.stringify(json), ws.clientId);
+        } else if (json.type == MessageType.SendImage) {
+            sendMessageToClientsInRoom(ws.clientId, message);
         }
     });
 

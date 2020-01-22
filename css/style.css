@@ -1,5 +1,5 @@
 body {
-    background-image: url("./bg1.jpg");
+    background-image: url("../img/bg2.jpg");
 }
 .main-container {
     display: inline-block;
@@ -89,6 +89,16 @@ body {
     border-bottom: 10px solid transparent;  
 }
 
+.chat-right-image {
+    width: 30%;
+    float: right;
+    margin-bottom: 15px;
+}
+
+.chat-left-image {
+    width: 30%;
+}
+
 .room-selector {
     min-width: 150px;
 
@@ -113,5 +123,6 @@ body {
 
 .sender-name {
     margin-left: 20px;
-    color: #ffffff
+    color: #ffffff;
+    clear: both;
 }
