@@ -14,8 +14,6 @@ s.on("connection", ws => {
     clientConnections.push(ws);
 
     ws.on("message", message => {
-        console.log("Received: " + message);
-
         const json = JSON.parse(message);
         if (json.type == MessageType.JoinRoom) {
             // 当該クライアントをルームから削除
@@ -72,7 +70,7 @@ function joinRoom(clientId, json) {
                 id: clientId
             }]
         })
-    } else if (room.clients.findIndex(c => c.id == clientId) != -1) { 
+    } else if (room.clients.findIndex(c => c.id == clientId) != -1) {
         // 既に同じルームに入っていたら何もしない
         return;
     } else {
@@ -169,7 +167,7 @@ function removeFromConnections(clientId) {
     if (index == -1) {
         return;
     }
-    clientConnections.splice(index, 1);    
+    clientConnections.splice(index, 1);
 }
 
 function getMembers(roomName) {

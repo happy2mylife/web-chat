@@ -1,41 +1,45 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8" />
-    <title>Webチャット</title>
-    <script type="text/javascript" src="./js/enum.js"></script>
-    <script type="text/javascript" src="./js/wsock.js"></script>
-    <script type="text/javascript" src="./js/util.js"></script>
-    <script type="text/javascript" src="./js/chat.js"></script>
-    <link rel="stylesheet" type="text/css" href="./css/style.css" />
-  </head>
 
-  <body>
-    <h1>いわゆるあのチャットアプリ風</h1>
-    <div class="main-container">
-      name:
-      <input type="text" id="nickName" /><br />
-      room:
-      <input type="text" id="roomText" />
-      <input type="button" value="入室" onclick="joinRoom()" /><br />
-      <select class="room-selector" id="roomSelector" name="chat-room" size="10" onclick="onRoomSelected()"> </select>
-      <br />
-      <input type="text" id="chatText" />
-      <button onclick="sendMessage()">メッセージを送信</button>
-      <br/>
-      <input id="selectImageBtn" type="file" />
-      <br/>
-      <button id="list" onclick="showMember()">メンバーを表示</button>
-      <table id="memberTable">
+<head>
+  <meta charset="UTF-8" />
+  <title>Sobalチャット</title>
+  <script type="text/javascript" src="./js/enum.js"></script>
+  <script type="text/javascript" src="./js/wsock.js"></script>
+  <script type="text/javascript" src="./js/util.js"></script>
+  <script type="text/javascript" src="./js/chat.js"></script>
+  <link rel="stylesheet" type="text/css" href="./css/style.css" />
+</head>
 
-      </table>
+<body>
+  <h1>LINE風</h1>
+  <div class="main-container">
+    name:
+    <input type="text" id="nickName" /><br />
+    room:
+    <input type="text" id="roomText" />
+    <input type="button" value="入室" onclick="sendJoinRoom()" /><br />
+    <select class="room-selector" id="roomSelector" name="chat-room" size="10" onclick="selectRoom()"> </select>
+    <br />
+    <input type="text" id="chatText" />
+    <button onclick="sendMessage()">メッセージを送信</button>
+    <br />
+    <input id="selectImageBtn" type="file" />
+    <br />
+    <button onclick="sendStamp()">スタンプを送信</button>
+    <br />
+    <button id="list" onclick="sendShowMember()">メンバーを表示</button>
+    <table id="memberTable">
+
+    </table>
+  </div>
+
+  <div class="chat-container">
+    <div class="title-container">
+      <span id="roomName"></span>
     </div>
+    <div class="chat-body" id="chatBox"></div>
+  </div>
+</body>
 
-    <div style="display: inline-block; width: 35%">
-      <div class="title-container">
-          <span id="roomName"></span>
-      </div>
-      <div class="chat-container" id="chatBox"></div>
-    </div>
-  </body>
 </html>

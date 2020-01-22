@@ -1,7 +1,3 @@
-//
-// インターンでは触れないファイル
-//
-
 /**
  * イメージファイルをBASE64エンコードする
  * @param {*} imageFile 
@@ -34,5 +30,33 @@ function getCurrentTime() {
 function removeAllChild(node) {
     for (let i=node.childNodes.length-1; i>=0; i--) {
         node.removeChild(node.childNodes[i]);
+    }
+}
+
+/**
+ * リストボックスに既に追加済みのルームかどうかをチェック
+ * @param {*} roomName 
+ */
+function isRoomAlreadyExist(roomName) {
+    for (let i = 0; i < roomSelector.options.length; i++) {
+        if (roomSelector.options[i].text === roomName) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+
+/**
+ * 指定の名前のルームを選択状態にする
+ * @param {*} roomName 
+ */
+function selectRoom(roomName) {
+    for (let i = 0; i < roomSelector.options.length; i++) {
+        if (roomSelector.options[i].text === roomName) {
+            roomSelector.selectedIndex = i;
+            break;
+        }
     }
 }
