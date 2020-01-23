@@ -16,6 +16,11 @@ s.on("connection", ws => {
     ws.on("message", message => {
         const json = JSON.parse(message);
         if (json.type == MessageType.JoinRoom) {
+            const room = getRoomByClientId(ws.clientId);
+            if (room && room.roomName === json.roomName) {
+                console.log(`${json.name} is already joined in ${json.roomName}`);
+                return;
+            }
             // 当該クライアントをルームから削除
             leaveRoom(ws.clientId);
 
